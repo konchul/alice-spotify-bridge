@@ -1,8 +1,10 @@
 #!/bin/bash
 export HOME="${HOME:-/root}"
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH:-}"
 
-# Find soloist binary
+# Find binaries
 SOLOIST_BIN="$(command -v soloist 2>/dev/null || echo "/usr/local/bin/soloist")"
+PYTHON_BIN="$(command -v python3 2>/dev/null || echo "/usr/bin/python3")"
 
 # Find configuration file
 CONFIG_FILE="${CONFIG_PATH:-}"
@@ -27,8 +29,8 @@ NAME="Alice 27"
 KEY=""
 
 if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
-    NAME=$(python3 -c "import json; print(json.load(open('$CONFIG_FILE')).get('spotify', {}).get('device_name', 'Alice 27'))" 2>/dev/null || echo "Alice 27")
-    KEY=$(python3 -c "import json; print(json.load(open('$CONFIG_FILE')).get('spotify', {}).get('api_key', ''))" 2>/dev/null || echo "")
+    NAME=$("$PYTHON_BIN" -c "import json; print(json.load(open('$CONFIG_FILE')).get('spotify', {}).get('device_name', 'Alice 27'))" 2>/dev/null || echo "Alice 27")
+    KEY=$("$PYTHON_BIN" -c "import json; print(json.load(open('$CONFIG_FILE')).get('spotify', {}).get('api_key', ''))" 2>/dev/null || echo "")
 fi
 
 if [ -z "$KEY" ]; then

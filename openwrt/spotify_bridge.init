@@ -51,11 +51,21 @@ mount_chroot() {
 start_service() {
     mount_chroot
 
+    # Clean up any stale instances or lock files before starting
+    killall -9 python3 2>/dev/null
+    killall -9 soloist 2>/dev/null
+    killall -9 parec 2>/dev/null
+    killall -9 lame 2>/dev/null
+    killall -9 pacat 2>/dev/null
+    rm -f "$CHROOT_DIR/root/soloist_data/.lock" 2>/dev/null
+    sleep 1
+
     # Ensure PulseAudio is active in chroot
     if ! chroot "$CHROOT_DIR" pactl info >/dev/null 2>&1; then
         chroot "$CHROOT_DIR" pulseaudio -D --exit-idle-time=-1 --disallow-exit=1
         sleep 1
     fi
+    chroot "$CHROOT_DIR" pactl set-sink-volume auto_null 55705 2>/dev/null
 
     # Soloist Spotify Connect
     procd_open_instance soloist
@@ -75,7 +85,10 @@ start_service() {
 }
 
 stop_service() {
-    pkill -f /root/bridge.py 2>/dev/null
-    pkill -f /usr/local/bin/soloist 2>/dev/null
-    pkill -f pacat 2>/dev/null
+    killall -9 python3 2>/dev/null
+    killall -9 soloist 2>/dev/null
+    killall -9 parec 2>/dev/null
+    killall -9 lame 2>/dev/null
+    killall -9 pacat 2>/dev/null
+    rm -f "$CHROOT_DIR/root/soloist_data/.lock" 2>/dev/null
 }
