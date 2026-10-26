@@ -44,12 +44,12 @@ if [ "$OS_TYPE" = "debian" ]; then
         exit 1
     fi
 
-    echo -e "\n📦 1/4. Установка системных пакетов (PulseAudio, Shairport-Sync, Python3)..."
+    echo -e "\n📦 1/5. Установка системных пакетов (PulseAudio, Shairport-Sync, Python3)..."
     apt-get update -y
     apt-get install -y git python3 python3-pip pulseaudio pulseaudio-utils shairport-sync curl wget
 
     INSTALL_DIR="/opt/alice-spotify-bridge"
-    echo -e "\n📥 2/4. Загрузка репозитория в $INSTALL_DIR..."
+    echo -e "\n📥 2/5. Загрузка репозитория в $INSTALL_DIR..."
     if [ -d "$INSTALL_DIR/.git" ]; then
         echo "Обновление существующего репозитория..."
         git -C "$INSTALL_DIR" pull
@@ -58,9 +58,18 @@ if [ "$OS_TYPE" = "debian" ]; then
         git clone https://github.com/konchul/alice-spotify-bridge.git "$INSTALL_DIR"
     fi
 
-    echo -e "\n🐍 3/4. Установка Python-зависимостей..."
+    echo -e "\n🐍 3/5. Установка Python-зависимостей..."
     pip3 install --break-system-packages -r "$INSTALL_DIR/requirements.txt" 2>/dev/null || \
     pip3 install -r "$INSTALL_DIR/requirements.txt"
+
+    echo -e "\n⚡️ 4/5. Оптимизация PulseAudio (снижение RAM с 750 МБ до 8 МБ)..."
+    if [ -d /etc/pulse ]; then
+        [ -f /etc/pulse/default.pa ] && [ ! -f /etc/pulse/default.pa.orig ] && cp /etc/pulse/default.pa /etc/pulse/default.pa.orig
+        [ -f /etc/pulse/daemon.conf ] && [ ! -f /etc/pulse/daemon.conf.orig ] && cp /etc/pulse/daemon.conf /etc/pulse/daemon.conf.orig
+        cp "$INSTALL_DIR/pulseaudio/default.pa" /etc/pulse/default.pa
+        cp "$INSTALL_DIR/pulseaudio/daemon.conf" /etc/pulse/daemon.conf
+        echo "Применен легковесный bit-perfect профиль PulseAudio."
+    fi
 
     # Проверка бинарника soloist
     if ! command -v soloist >/dev/null 2>&1 && [ ! -f /usr/local/bin/soloist ]; then
@@ -68,7 +77,7 @@ if [ "$OS_TYPE" = "debian" ]; then
         echo "   Поместите бинарник soloist в /usr/local/bin/soloist и выполните chmod +x /usr/local/bin/soloist"
     fi
 
-    echo -e "\n⚙️  4/4. Настройка служб systemd..."
+    echo -e "\n⚙️  5/5. Настройка служб systemd..."
     cp "$INSTALL_DIR/systemd/"*.service /etc/systemd/system/
     systemctl daemon-reload
 
@@ -101,13 +110,21 @@ if [ "$OS_TYPE" = "openwrt" ]; then
     fi
 
     echo "Целевой каталог на накопителе: $USB_DIR"
-    mkdir -p "$USB_DIR"
+    mkdir -p "$USB_DIR" "$USB_DIR/pulseaudio"
 
     echo "Загрузка компонентов моста..."
     curl -sSL https://raw.githubusercontent.com/konchul/alice-spotify-bridge/main/bridge.py -o "$USB_DIR/bridge.py"
     curl -sSL https://raw.githubusercontent.com/konchul/alice-spotify-bridge/main/setup.py -o "$USB_DIR/setup.py"
     curl -sSL https://raw.githubusercontent.com/konchul/alice-spotify-bridge/main/run_soloist.sh -o "$USB_DIR/run_soloist.sh"
+    curl -sSL https://raw.githubusercontent.com/konchul/alice-spotify-bridge/main/pulseaudio/default.pa -o "$USB_DIR/pulseaudio/default.pa"
+    curl -sSL https://raw.githubusercontent.com/konchul/alice-spotify-bridge/main/pulseaudio/daemon.conf -o "$USB_DIR/pulseaudio/daemon.conf"
     chmod +x "$USB_DIR/setup.py" "$USB_DIR/run_soloist.sh"
+
+    # Применение PulseAudio профиля в chroot если доступен
+    if [ -d "/tmp/noble/etc/pulse" ]; then
+        cp "$USB_DIR/pulseaudio/default.pa" "/tmp/noble/etc/pulse/default.pa" 2>/dev/null || true
+        cp "$USB_DIR/pulseaudio/daemon.conf" "/tmp/noble/etc/pulse/daemon.conf" 2>/dev/null || true
+    fi
 
     echo "Установка службы OpenWrt procd..."
     curl -sSL https://raw.githubusercontent.com/konchul/alice-spotify-bridge/main/openwrt/spotify_bridge.init -o /etc/init.d/spotify_bridge

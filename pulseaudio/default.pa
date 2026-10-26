@@ -1,0 +1,18 @@
+#!/usr/bin/pulseaudio -nF
+# Minimal ultra-light config for Spotify Connect + AirPlay bridge (headless)
+# Memory consumption: ~8 MB RSS (instead of 750+ MB default desktop bloat)
+
+.fail
+
+# Restore volume and stream state across restarts
+load-module module-device-restore
+load-module module-stream-restore
+
+# Bit-perfect Null Sink target for Spotify (Soloist) and AirPlay (shairport-sync)
+load-module module-null-sink sink_name=auto_null rate=44100 channels=2 format=s16le sink_properties=device.description=Spotify+AirPlay
+
+# Unix domain socket for local fast PCM clients (parec, pacat)
+load-module module-native-protocol-unix
+
+# Always keep the auto_null sink available
+load-module module-always-sink
