@@ -1,0 +1,16 @@
+[Unit]
+Description=Alice Spotify & AirPlay Lossless Bridge
+After=network.target sound.target pulseaudio.service
+Wants=soloist.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/alice-spotify-bridge
+ExecStart=/usr/bin/python3 -u /opt/alice-spotify-bridge/bridge.py
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

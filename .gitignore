@@ -1,0 +1,40 @@
+# Secrets — NEVER commit these
+.env
+config.json
+spotify_tokens.json
+credentials.json
+*.pem
+*.key
+
+# Soloist data and cache
+soloist_data/
+soloist_cache/
+*.bin
+*.ldb
+*.dat
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+env/
+venv/
+
+# Audio test files
+*.wav
+*.mp3
+*.flac
+*.pcm
+
+# Rootfs images
+noble_rootfs.tar.gz
+*.tar.gz
+
+# Build artifacts
+bridge/target/
+node_modules/
+
+# Logs
+*.log

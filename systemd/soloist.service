@@ -1,0 +1,14 @@
+[Unit]
+Description=Spotify Connect Receiver (Soloist)
+After=network.target sound.target pulseaudio.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/alice-spotify-bridge
+ExecStart=/opt/alice-spotify-bridge/run_soloist.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

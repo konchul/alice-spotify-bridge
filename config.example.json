@@ -1,0 +1,26 @@
+{
+  "spotify": {
+    "device_name": "Alice 27",
+    "api_key": "YOUR_SPOTIFY_DEVELOPER_KEY_SPAK_HERE"
+  },
+  "yandex": {
+    "session_id": "YOUR_YANDEX_SESSION_ID_COOKIE_HERE",
+    "station_ip": "192.168.1.100",
+    "device_id": "YOUR_DEVICE_ID_HERE",
+    "platform": "yandexmini_2"
+  },
+  "server": {
+    "stream_host": "auto",
+    "http_port": 8888,
+    "soloist_ws": "ws://127.0.0.1:9090",
+    "soloist_bin": "/usr/local/bin/soloist",
+    "soloist_data": "./soloist_data"
+  },
+  "airplay": {
+    "audio_fifo": "/tmp/shairport-sync-audio",
+    "meta_fifo": "/tmp/shairport-sync-metadata"
+  },
+  "audio": {
+    "pause_debounce_sec": 1.0
+  }
+}
