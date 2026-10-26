@@ -4,6 +4,22 @@
 
 ---
 
+## ⚡️ Быстрый старт (установка одной командой)
+
+Скрипт автоматически определит систему, установит все пакеты (PulseAudio, Shairport-Sync, Python), скачает компоненты моста, настроит автозапуск служб и запустит мастер настройки:
+
+### На Ubuntu / Debian / Raspberry Pi OS:
+```bash
+curl -sSL https://raw.githubusercontent.com/konchul/alice-spotify-bridge/main/install.sh | sudo bash
+```
+
+### На роутере OpenWrt:
+```bash
+curl -sSL https://raw.githubusercontent.com/konchul/alice-spotify-bridge/main/install.sh | sh
+```
+
+---
+
 ## 🛠️ Что нужно для работы
 
 1. **Подписка Spotify Premium**:
@@ -26,70 +42,15 @@
 Для работы моста нужны всего два параметра:
 
 * **Яндекс `Session_id` (Cookie авторизации)**:
-  1. Войдите в аккаунт на [yandex.ru](https://yandex.ru) в браузере с компьютера.
-  2. Нажмите **F12** → вкладка **Application** (в Firefox — **Storage / Хранилище**) → слева **Cookies** → `https://yandex.ru`.
-  3. Скопируйте значение строки **`Session_id`** (начинается с `3:...`).
+  * **1.** Войдите в аккаунт на [yandex.ru](https://yandex.ru) в браузере с компьютера.
+  * **2.** Нажмите **F12** → вкладка **Application** (в Firefox — **Storage / Хранилище**) → слева **Cookies** → `https://yandex.ru`.
+  * **3.** Скопируйте значение строки **`Session_id`** (начинается с `3:...`).
 * **Spotify Developer API Key (`spak_...`)**:
   * Специальный ключ для протокола Spotify eSDK. Интерактивный мастер `setup.py` автоматически предложит готовый рабочий ключ, либо можно использовать свой из [Spotify Developer Dashboard](https://developer.spotify.com/dashboard).
 * **Фиксация статического IP Станции**:
   * В веб-интерфейсе роутера (**DHCP** → **Static Leases**) обязательно закрепите IP-адрес Станции по её MAC-адресу (например, `192.168.1.102`), чтобы колонка не меняла адрес при перезагрузке.
 * **Device ID и Platform Станции**:
   * Вручную искать не нужно: мастер `setup.py` (или команда `python3 bridge.py --list-devices`) сам опросит облако Яндекса по вашему `Session_id` и покажет пронумерованный список ваших колонок.
-
----
-
-## 🚀 Быстрый старт
-
-### Вариант 1: Ubuntu / Debian / Raspberry Pi
-
-1. **Установите системные зависимости**:
-   ```bash
-   sudo apt update
-   sudo apt install -y python3 python3-pip pulseaudio pulseaudio-utils shairport-sync
-   ```
-
-2. **Клонируйте репозиторий и установите библиотеки**:
-   ```bash
-   git clone https://github.com/konchul/alice-spotify-bridge.git
-   cd alice-spotify-bridge
-   pip3 install -r requirements.txt
-   ```
-
-3. **Установите бинарник Soloist (Spotify Connect)**:
-   ```bash
-   sudo cp soloist /usr/local/bin/soloist
-   sudo chmod +x /usr/local/bin/soloist
-   ```
-
-4. **Запустите интерактивный мастер настройки**:
-   ```bash
-   python3 setup.py
-   ```
-   Мастер запросит ключи, покажет список ваших Станций и сохранит готовый `config.json`.
-
-5. **Включите автозапуск в systemd**:
-   ```bash
-   sudo cp systemd/*.service /etc/systemd/system/
-   sudo systemctl daemon-reload
-   sudo systemctl enable --now soloist.service alice-spotify-bridge.service
-   ```
-
----
-
-### Вариант 2: OpenWrt (роутер с USB)
-
-1. Подключите USB-флешку с файлами `bridge.py`, `setup.py`, `run_soloist.sh` и архивом `noble_rootfs.tar.gz`.
-2. Скопируйте procd-скрипт и запустите службу:
-   ```bash
-   cp openwrt/spotify_bridge.init /etc/init.d/spotify_bridge
-   chmod +x /etc/init.d/spotify_bridge
-   /etc/init.d/spotify_bridge enable
-   /etc/init.d/spotify_bridge start
-   ```
-3. Запустите первоначальную настройку:
-   ```bash
-   /root/setup.sh
-   ```
 
 ---
 
